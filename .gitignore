@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.data/
+.venv/
+.DS_Store
+.secrets/
+.env
+*.dump
+*.backup
+.ruff_cache/

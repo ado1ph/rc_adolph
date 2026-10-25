@@ -1,0 +1,36 @@
+# Single-host development only. Do not mistake this PostgreSQL instance for HA.
+services:
+  db:
+    image: postgres:17-alpine@sha256:eee6c6e1b0894fa4fe0075eb054af9fd1cf39a35321c2d4110626cfe506411fb
+    environment:
+      POSTGRES_USER: notifier
+      POSTGRES_DB: notifier
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./.secrets/postgres-password:/run/secrets/postgres-password:ro
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U notifier -d notifier"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    mem_limit: 512m
+    restart: unless-stopped
+  api:
+    environment:
+      NOTIFY_ENV: development
+    ports: ["127.0.0.1:9000:9000"]
+    depends_on:
+      db: {condition: service_healthy}
+  worker:
+    environment:
+      NOTIFY_ENV: development
+    depends_on:
+      db: {condition: service_healthy}
+  migrate:
+    environment:
+      NOTIFY_ENV: development
+    depends_on:
+      db: {condition: service_healthy}
+volumes:
+  postgres-data:

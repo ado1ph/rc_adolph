@@ -1,0 +1,78 @@
+{
+  "run_at": "2026-10-25T08:57:04.915591+00:00",
+  "scenarios": [
+    {
+      "attempts": [
+        {
+          "error": null,
+          "http_status": 200,
+          "number": 1,
+          "outcome": "succeeded"
+        }
+      ],
+      "idempotent_receipt_reused": true,
+      "mode": "idempotent",
+      "name": "success",
+      "observed_statuses": [
+        "pending",
+        "succeeded"
+      ],
+      "supplier_calls": 1,
+      "supplier_effects": 1
+    },
+    {
+      "attempts": [
+        {
+          "error": "http_503",
+          "http_status": 503,
+          "number": 1,
+          "outcome": "retryable_failure"
+        },
+        {
+          "error": "http_503",
+          "http_status": 503,
+          "number": 2,
+          "outcome": "retryable_failure"
+        },
+        {
+          "error": null,
+          "http_status": 200,
+          "number": 3,
+          "outcome": "succeeded"
+        }
+      ],
+      "idempotent_receipt_reused": true,
+      "mode": "idempotent",
+      "name": "retry_after_503",
+      "observed_statuses": [
+        "pending",
+        "in_flight",
+        "succeeded"
+      ],
+      "supplier_calls": 3,
+      "supplier_effects": 1
+    },
+    {
+      "attempts": [
+        {
+          "error": "manual_reconciliation_required",
+          "http_status": null,
+          "number": 1,
+          "outcome": "reconciliation_required"
+        }
+      ],
+      "idempotent_receipt_reused": true,
+      "mode": "manual_on_ambiguous",
+      "name": "ambiguous_timeout_reconciled",
+      "observed_statuses": [
+        "pending",
+        "in_flight",
+        "reconciliation_required",
+        "succeeded"
+      ],
+      "supplier_calls": 1,
+      "supplier_effects": 1
+    }
+  ],
+  "schema_version": 1
+}

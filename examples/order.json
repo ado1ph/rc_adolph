@@ -1,0 +1,10 @@
+{
+  "url": "http://127.0.0.1:9100/vendor/orders?scenario=flaky",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json",
+    "X-API-Key": "supplier-demo-secret",
+    "Idempotency-Key": "supplier-order-1001"
+  },
+  "body": "{\"order_id\":\"order-1001\",\"amount_cents\":1990}"
+}

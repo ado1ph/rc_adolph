@@ -1,0 +1,7 @@
+# Python 3.12 production runtime; update via pip-compile, then audit and test.
+fastapi==0.161.1
+uvicorn==0.54.0
+psycopg[binary,pool]==3.3.6
+cryptography==50.0.2
+dnspython==2.9.0
+prometheus-client==0.26.0

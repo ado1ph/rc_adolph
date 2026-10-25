@@ -1,0 +1,67 @@
+groups:
+  - name: delivery
+    rules:
+      - alert: NotificationServiceUnavailable
+        expr: up{job="notifier"} == 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: "Notification API or metrics unavailable"}
+      - alert: NotificationWorkersMissing
+        expr: notify_healthy_workers == 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: "No fresh delivery worker heartbeat"}
+      - alert: NotificationAdmissionLatencyHigh
+        expr: histogram_quantile(0.95, sum by (le) (rate(notify_api_request_duration_seconds_bucket{operation="/v1/notifications",method="POST"}[5m]))) > 0.2
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Admission p95 latency exceeds 200 milliseconds"}
+      - alert: NotificationAPIServerErrors
+        expr: sum(rate(notify_api_requests_total{status=~"5.."}[5m])) > 0
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "Notification API has server errors"}
+      - alert: NotificationBacklogOld
+        expr: notify_oldest_pending_age_seconds > 300
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "Pending delivery age exceeds five minutes"}
+      - alert: NotificationQueueNearCapacity
+        expr: sum by (job) (max by (job, state) (notify_jobs{state=~"pending|in_flight|paused"})) / on (job) max by (job) (notify_queue_capacity) > 0.8
+        for: 2m
+        labels: {severity: warning}
+        annotations:
+          summary: "Active queue exceeds 80 percent capacity"
+          description: "pending, in_flight and paused jobs consume admission capacity. Resolve paused origin holds only after supplier confirmation."
+      - alert: NotificationRetryAfterHold
+        expr: max(notify_retry_after_holds) > 0
+        for: 10m
+        labels: {severity: warning}
+        annotations:
+          summary: "Supplier Retry-After hold needs operator attention"
+          description: "Confirm the supplier cooldown has elapsed, then release the origin hold using the audited runbook. Do not mark paused or reconciliation_required jobs as undelivered."
+      - alert: NotificationNeedsIntervention
+        expr: notify_jobs{state="failed"} > 0
+        for: 1m
+        labels: {severity: warning}
+        annotations: {summary: "Failed deliveries require investigation or replay"}
+      - alert: NotificationReconciliationRequired
+        expr: notify_jobs{state="reconciliation_required"} > 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: "Supplier outcome is unresolved; reconcile before retry"}
+      - alert: NotificationSnapshotStorageNearQuota
+        expr: notify_snapshot_bytes / notify_snapshot_capacity_bytes > 0.8
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "Encrypted snapshot storage exceeds 80 percent quota"}
+      - alert: NotificationRetainedJobsNearQuota
+        expr: notify_retained_jobs / notify_retained_capacity > 0.8
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "Retained jobs exceed 80 percent quota"}
+      - alert: NotificationSupplierCircuitOpen
+        expr: notify_open_circuits > 0
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "One or more supplier circuits are open"}

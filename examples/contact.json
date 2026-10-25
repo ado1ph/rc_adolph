@@ -1,0 +1,9 @@
+{
+  "url": "http://127.0.0.1:9100/vendor/contact",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "X-Vendor-Token": "form-demo-token"
+  },
+  "body": "contact_id=customer-7&state=paid"
+}

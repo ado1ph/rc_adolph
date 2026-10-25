@@ -1,0 +1,4 @@
+-r requirements.lock
+httpx==0.28.1
+pip-audit==2.10.1
+ruff==0.17.2

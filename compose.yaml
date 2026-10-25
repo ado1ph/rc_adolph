@@ -1,0 +1,101 @@
+name: rc-yuki
+x-runtime: &runtime
+  image: rc-yuki-notifier:local
+  build: .
+  user: "${NOTIFY_UID:-10001}:${NOTIFY_GID:-10001}"
+  environment: &environment
+    NOTIFY_ENV: "${NOTIFY_ENV:-production}"
+    NOTIFY_DATABASE_URL_FILE: /run/notifier/database-url
+    NOTIFY_AUTH_FILE: /run/notifier/auth.json
+    NOTIFY_KEYS_FILE: /run/notifier/keys.json
+    NOTIFY_CREDENTIALS_FILE: /run/notifier/credentials.json
+    NOTIFY_ALLOWED_ORIGINS: "${NOTIFY_ALLOWED_ORIGINS:?Set the supplier origin allowlist}"
+    NOTIFY_WORKERS: "${NOTIFY_WORKERS:-8}"
+    NOTIFY_PER_ORIGIN: "${NOTIFY_PER_ORIGIN:-2}"
+    NOTIFY_RATE_PER_SECOND: "${NOTIFY_RATE_PER_SECOND:-5}"
+    NOTIFY_MAX_PENDING: "${NOTIFY_MAX_PENDING:-10000}"
+    NOTIFY_MAX_TENANT_PENDING: "${NOTIFY_MAX_TENANT_PENDING:-1000}"
+    NOTIFY_MAX_RETAINED: "${NOTIFY_MAX_RETAINED:-100000}"
+    NOTIFY_MAX_SNAPSHOT_BYTES: "${NOTIFY_MAX_SNAPSHOT_BYTES:-1073741824}"
+  volumes:
+    - ./.secrets:/run/notifier:ro
+  read_only: true
+  tmpfs:
+    - /tmp:size=16m,mode=1777
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 128
+  mem_limit: 512m
+  cpus: 1
+  init: true
+  stop_grace_period: 45s
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: "3"}
+
+services:
+  migrate:
+    <<: *runtime
+    command: [python, -m, notifier.production, migrate]
+    profiles: [tools]
+    restart: "no"
+  api:
+    <<: *runtime
+    command: [python, -m, notifier.production, api, --host, 0.0.0.0]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/readyz', timeout=2)"]
+      interval: 10s
+      timeout: 4s
+      retries: 3
+      start_period: 20s
+  worker:
+    <<: *runtime
+    command: [python, -m, notifier.production, worker]
+    restart: unless-stopped
+  ingress:
+    image: nginx:1.28-alpine@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
+    user: "${NOTIFY_UID:-10001}:${NOTIFY_GID:-10001}"
+    restart: unless-stopped
+    depends_on:
+      api: {condition: service_healthy}
+    ports: ["127.0.0.1:9443:8443"]
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./.secrets/tls:/etc/nginx/tls:ro
+    read_only: true
+    tmpfs: [/tmp:mode=1777, /var/cache/nginx:mode=1777, /var/run:mode=1777]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    pids_limit: 64
+  prometheus:
+    image: prom/prometheus:v3.2.1@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62
+    profiles: [monitoring]
+    restart: unless-stopped
+    user: "${NOTIFY_UID:-10001}:${NOTIFY_GID:-10001}"
+    command: [--config.file=/etc/prometheus/prometheus.yml, --storage.tsdb.path=/prometheus, --storage.tsdb.retention.time=15d]
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./.secrets:/run/notifier:ro
+      - ./.data/prometheus:/prometheus
+    tmpfs: [/tmp:mode=1777]
+    read_only: true
+    mem_limit: 384m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  alertmanager:
+    image: prom/alertmanager:v0.28.1@sha256:27c475db5fb156cab31d5c18a4251ac7ed567746a2483ff264516437a39b15ba
+    profiles: [monitoring]
+    restart: unless-stopped
+    user: "${NOTIFY_UID:-10001}:${NOTIFY_GID:-10001}"
+    command: [--config.file=/etc/alertmanager/alertmanager.yml, --storage.path=/alertmanager]
+    volumes:
+      - ./.secrets/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./.data/alertmanager:/alertmanager
+    tmpfs: [/tmp:mode=1777]
+    read_only: true
+    mem_limit: 128m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

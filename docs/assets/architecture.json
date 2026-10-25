@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "mode": "architecture",
+  "template_type": "architecture",
+  "style": 1,
+  "quality_profile": "showcase",
+  "text_policy": "strict",
+  "width": 1280,
+  "height": 680,
+  "title": "rc_adolph",
+  "subtitle": "PostgreSQL task ledger | Independent API and Worker processes",
+  "nodes": [
+    {
+      "id": "business", "kind": "rect",
+      "x": 60, "y": 170, "width": 230, "height": 88,
+      "label": "Business systems", "sublabel": "URL + headers + raw body",
+      "fill": "#f8fafc", "stroke": "#94a3b8", "flat": true
+    },
+    {
+      "id": "api", "kind": "rect",
+      "x": 460, "y": 170, "width": 270, "height": 88,
+      "label": "Notification API", "sublabel": "Auth / idempotency / admission",
+      "fill": "#eff6ff", "stroke": "#60a5fa", "flat": true
+    },
+    {
+      "id": "ledger", "kind": "rect",
+      "x": 940, "y": 170, "width": 270, "height": 88,
+      "label": "PostgreSQL 17", "sublabel": "Jobs / attempts / audit",
+      "fill": "#f0fdf4", "stroke": "#4ade80", "flat": true
+    },
+    {
+      "id": "worker", "kind": "rect",
+      "x": 460, "y": 440, "width": 270, "height": 88,
+      "label": "Delivery Worker", "sublabel": "Lease / retry / reconciliation",
+      "fill": "#fff7ed", "stroke": "#fb923c", "flat": true
+    },
+    {
+      "id": "supplier", "kind": "rect",
+      "x": 940, "y": 440, "width": 270, "height": 88,
+      "label": "Supplier HTTP API", "sublabel": "Existing contract, unchanged",
+      "fill": "#f0fdfa", "stroke": "#2dd4bf", "flat": true
+    }
+  ],
+  "arrows": [
+    {
+      "id": "submit", "source": "business", "target": "api",
+      "source_port": "right", "target_port": "left",
+      "flow": "control", "label": "POST request", "label_style": "offset"
+    },
+    {
+      "id": "commit", "source": "api", "target": "ledger",
+      "source_port": "right", "target_port": "left",
+      "flow": "write", "label": "Commit before 202", "label_style": "offset"
+    },
+    {
+      "id": "lease", "source": "worker", "target": "ledger",
+      "source_port": "top", "target_port": "bottom",
+      "flow": "write", "label": "Claim / renew / finish",
+      "label_style": "offset", "route_points": [[595, 350], [1075, 350]]
+    },
+    {
+      "id": "deliver", "source": "worker", "target": "supplier",
+      "source_port": "right", "target_port": "left",
+      "flow": "control", "label": "Existing HTTP API", "label_style": "offset"
+    }
+  ],
+  "legend_orientation": "horizontal",
+  "legend_x": 60,
+  "legend_y": 580,
+  "legend_locked": true,
+  "legend": [
+    {"flow": "control", "label": "HTTP boundary"},
+    {"flow": "write", "label": "Database transaction"}
+  ],
+  "footer": "No database transaction is held during supplier HTTP. External effects are not exactly-once.",
+  "footer_x": 60,
+  "footer_y": 640
+}

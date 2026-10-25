@@ -1,0 +1,10 @@
+.git
+.venv
+.data
+.secrets
+.env
+__pycache__
+*.pyc
+artifacts
+*.dump
+*.backup

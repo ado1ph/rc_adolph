@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 680" width="1280" height="680" data-generator="fireworks-tech-graph" data-schema-version="1" data-text-metrics="heuristic-v1" data-style-id="1" data-visual-theme="Flat Icon" data-diagram-type="architecture" data-motion-scene="" data-semantic-profile="generic" data-semantic-valid="true" data-quality-profile="showcase" data-max-bends-per-edge="2" data-max-total-bends="8" data-max-route-stretch="1.35" data-max-bridged-crossings="0" data-min-node-gap="40.0" data-min-container-gutter="20.0" data-min-label-clearance="4.0" data-min-segment-length="16.0">
+  <defs>
+    <marker id="arrowA" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrowB" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+    </marker>
+    <marker id="arrowC" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/>
+    </marker>
+    <marker id="arrowE" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f97316"/>
+    </marker>
+    <marker id="arrowF" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrowG" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+    </marker>
+    <marker id="arrowH" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+    </marker>
+    <filter id="shadowSoft" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <filter id="shadowGlass" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#020617" flood-opacity="0.28"/>
+    </filter>
+    <style>
+    text { font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Noto Sans CJK SC', 'Microsoft YaHei', 'Microsoft JhengHei', 'SimHei', sans-serif; }
+    .title { font-size: 30px; font-weight: 700; fill: #111827; }
+    .subtitle { font-size: 14px; font-weight: 500; fill: #6b7280; }
+    .section { font-size: 13px; font-weight: 700; fill: #2563eb; letter-spacing: 1.4px; }
+    .section-sub { font-size: 12px; font-weight: 500; fill: #64748b; }
+    .node-title { font-weight: 700; fill: #111827; }
+    .node-sub { font-weight: 500; fill: #6b7280; }
+    .node-type { font-size: 12px; font-weight: 700; fill: #64748b; letter-spacing: 0.08em; }
+    .arrow-label { font-size: 12px; font-weight: 600; fill: #6b7280; }
+    .legend { font-size: 12px; font-weight: 500; fill: #6b7280; }
+    .footnote { font-size: 12px; font-weight: 500; fill: #64748b; }
+    .metric-label { font-size: 8.5px; font-weight: 700; fill: #64748b; text-transform: uppercase; }
+    .metric-value { font-size: 9.5px; font-weight: 700; fill: #111827; }
+    </style>
+  </defs>
+  <rect data-graph-role="background" width="1280.0" height="680.0" fill="#ffffff"/>
+  <text x="640.0" y="56" text-anchor="middle" class="title">rc_adolph</text>
+  <text x="640.0" y="82" text-anchor="middle" class="subtitle">PostgreSQL task ledger | Independent API and Worker processes</text>
+  <path id="lease" data-graph-role="edge" data-edge-id="lease" data-source="worker" data-target="ledger" data-edge-kind="flow" data-topic-id="" data-flow="write" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="2" data-route-stretch="1.0" data-bridges="" d="M 595,440 L 595,350 L 1075,350 L 1075,258" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowB)"/>
+  <path id="submit" data-graph-role="edge" data-edge-id="submit" data-source="business" data-target="api" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="0" data-route-stretch="1.0" data-bridges="" d="M 290,214 L 460,214" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <path id="commit" data-graph-role="edge" data-edge-id="commit" data-source="api" data-target="ledger" data-edge-kind="flow" data-topic-id="" data-flow="write" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="0" data-route-stretch="1.0" data-bridges="" d="M 730,214 L 940,214" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowB)"/>
+  <path id="deliver" data-graph-role="edge" data-edge-id="deliver" data-source="worker" data-target="supplier" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="0" data-route-stretch="1.0" data-bridges="" d="M 730,484 L 940,484" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <g id="node-business" data-graph-role="node" data-node-id="business" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="60,170,290,258">
+  <rect x="60.0" y="170.0" width="230.0" height="88.0" rx="10.0" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8"/>
+  <text data-text-role="title" data-full-text="Business systems" data-text-max-width="206.0" x="175.0" y="214.0" text-anchor="middle" class="node-title" font-size="18">Business systems</text>
+  <text data-text-role="subtitle" data-full-text="URL + headers + raw body" data-text-max-width="206.0" x="175.0" y="236.0" text-anchor="middle" class="node-sub" font-size="12">URL + headers + raw body</text>
+  </g>
+  <g id="node-api" data-graph-role="node" data-node-id="api" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="460,170,730,258">
+  <rect x="460.0" y="170.0" width="270.0" height="88.0" rx="10.0" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.8"/>
+  <text data-text-role="title" data-full-text="Notification API" data-text-max-width="246.0" x="595.0" y="214.0" text-anchor="middle" class="node-title" font-size="18">Notification API</text>
+  <text data-text-role="subtitle" data-full-text="Auth / idempotency / admission" data-text-max-width="246.0" x="595.0" y="236.0" text-anchor="middle" class="node-sub" font-size="12">Auth / idempotency / admission</text>
+  </g>
+  <g id="node-ledger" data-graph-role="node" data-node-id="ledger" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="940,170,1210,258">
+  <rect x="940.0" y="170.0" width="270.0" height="88.0" rx="10.0" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.8"/>
+  <text data-text-role="title" data-full-text="PostgreSQL 17" data-text-max-width="246.0" x="1075.0" y="214.0" text-anchor="middle" class="node-title" font-size="18">PostgreSQL 17</text>
+  <text data-text-role="subtitle" data-full-text="Jobs / attempts / audit" data-text-max-width="246.0" x="1075.0" y="236.0" text-anchor="middle" class="node-sub" font-size="12">Jobs / attempts / audit</text>
+  </g>
+  <g id="node-worker" data-graph-role="node" data-node-id="worker" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="460,440,730,528">
+  <rect x="460.0" y="440.0" width="270.0" height="88.0" rx="10.0" fill="#fff7ed" stroke="#fb923c" stroke-width="1.8"/>
+  <text data-text-role="title" data-full-text="Delivery Worker" data-text-max-width="246.0" x="595.0" y="484.0" text-anchor="middle" class="node-title" font-size="18">Delivery Worker</text>
+  <text data-text-role="subtitle" data-full-text="Lease / retry / reconciliation" data-text-max-width="246.0" x="595.0" y="506.0" text-anchor="middle" class="node-sub" font-size="12">Lease / retry / reconciliation</text>
+  </g>
+  <g id="node-supplier" data-graph-role="node" data-node-id="supplier" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="940,440,1210,528">
+  <rect x="940.0" y="440.0" width="270.0" height="88.0" rx="10.0" fill="#f0fdfa" stroke="#2dd4bf" stroke-width="1.8"/>
+  <text data-text-role="title" data-full-text="Supplier HTTP API" data-text-max-width="246.0" x="1075.0" y="484.0" text-anchor="middle" class="node-title" font-size="18">Supplier HTTP API</text>
+  <text data-text-role="subtitle" data-full-text="Existing contract, unchanged" data-text-max-width="246.0" x="1075.0" y="506.0" text-anchor="middle" class="node-sub" font-size="12">Existing contract, unchanged</text>
+  </g>
+  <g id="submit-label" data-graph-role="label" data-owner="submit" data-graph-bounds="327.56,183,422.44,203">
+  <text x="375.0" y="197.0" text-anchor="middle" class="arrow-label">POST request</text>
+  </g>
+  <g id="commit-label" data-graph-role="label" data-owner="commit" data-graph-bounds="773.04,183,896.96,203">
+  <text x="835.0" y="197.0" text-anchor="middle" class="arrow-label">Commit before 202</text>
+  </g>
+  <g id="lease-label" data-graph-role="label" data-owner="lease" data-graph-bounds="762.96,319,907.04,339">
+  <text x="835.0" y="333.0" text-anchor="middle" class="arrow-label">Claim / renew / finish</text>
+  </g>
+  <g id="deliver-label" data-graph-role="label" data-owner="deliver" data-graph-bounds="776.16,453,893.84,473">
+  <text x="835.0" y="467.0" text-anchor="middle" class="arrow-label">Existing HTTP API</text>
+  </g>
+  <g id="legend" data-graph-role="legend">
+    <rect id="legend-zone" data-graph-role="reserved" data-reserved-kind="legend" x="50" y="566" width="359.28" height="46" rx="10" fill="none" stroke="none"/>
+    <line data-graph-role="decoration" x1="60.0" y1="580.0" x2="90.0" y2="580.0" stroke="#7c3aed" stroke-width="2.4" marker-end="url(#arrowA)"/>
+    <text data-graph-role="decoration" x="100.0" y="584.0" class="legend">HTTP boundary</text>
+    <line data-graph-role="decoration" x1="215.84" y1="580.0" x2="245.84" y2="580.0" stroke="#10b981" stroke-width="2.4" marker-end="url(#arrowB)"/>
+    <text data-graph-role="decoration" x="255.84" y="584.0" class="legend">Database transaction</text>
+  </g>
+  <g id="footer" data-graph-role="reserved" data-graph-bounds="60,628,704,644">
+  <text x="60.0" y="640.0" class="footnote">No database transaction is held during supplier HTTP. External effects are not exactly-once.</text>
+  </g>
+</svg>

@@ -1,0 +1,116 @@
+rule_files:
+  - ../deploy/alerts.yml
+evaluation_interval: 1m
+
+tests:
+  - name: paused jobs consume active capacity without double counting api replicas
+    interval: 1m
+    input_series:
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="paused"}'
+        values: '1 1 1 1'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="paused"}'
+        values: '1 1 1 1'
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="pending"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="pending"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="in_flight"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="in_flight"}'
+        values: '0 0 0 0'
+      - series: 'notify_queue_capacity{job="notifier",instance="api-1"}'
+        values: '1 1 1 1'
+      - series: 'notify_queue_capacity{job="notifier",instance="api-2"}'
+        values: '1 1 1 1'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: NotificationQueueNearCapacity
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: NotificationQueueNearCapacity
+        exp_alerts:
+          - exp_labels: {severity: warning, job: notifier}
+            exp_annotations:
+              summary: Active queue exceeds 80 percent capacity
+              description: "pending, in_flight and paused jobs consume admission capacity. Resolve paused origin holds only after supplier confirmation."
+
+  - name: mixed active states aggregate once across api replicas
+    interval: 1m
+    input_series:
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="pending"}'
+        values: '2 2 2 2'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="pending"}'
+        values: '2 2 2 2'
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="in_flight"}'
+        values: '1 1 1 1'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="in_flight"}'
+        values: '1 1 1 1'
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="paused"}'
+        values: '2 2 2 2'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="paused"}'
+        values: '2 2 2 2'
+      - series: 'notify_queue_capacity{job="notifier",instance="api-1"}'
+        values: '5 5 5 5'
+      - series: 'notify_queue_capacity{job="notifier",instance="api-2"}'
+        values: '5 5 5 5'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: NotificationQueueNearCapacity
+        exp_alerts:
+          - exp_labels: {severity: warning, job: notifier}
+            exp_annotations:
+              summary: Active queue exceeds 80 percent capacity
+              description: "pending, in_flight and paused jobs consume admission capacity. Resolve paused origin holds only after supplier confirmation."
+
+  - name: retry-after hold fires after ten minutes and resolves after release
+    interval: 5m
+    input_series:
+      - series: 'notify_retry_after_holds{job="notifier",instance="api-1"}'
+        values: '1 1 1 0 0'
+      - series: 'notify_retry_after_holds{job="notifier",instance="api-2"}'
+        values: '1 1 1 0 0'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: NotificationRetryAfterHold
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: NotificationRetryAfterHold
+        exp_alerts:
+          - exp_labels: {severity: warning}
+            exp_annotations:
+              summary: Supplier Retry-After hold needs operator attention
+              description: "Confirm the supplier cooldown has elapsed, then release the origin hold using the audited runbook. Do not mark paused or reconciliation_required jobs as undelivered."
+      - eval_time: 15m
+        alertname: NotificationRetryAfterHold
+        exp_alerts: []
+
+  - name: empty queue and released hold stay quiet across api replicas
+    interval: 1m
+    input_series:
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="pending"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="pending"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="in_flight"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="in_flight"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-1",state="paused"}'
+        values: '0 0 0 0'
+      - series: 'notify_jobs{job="notifier",instance="api-2",state="paused"}'
+        values: '0 0 0 0'
+      - series: 'notify_queue_capacity{job="notifier",instance="api-1"}'
+        values: '100 100 100 100'
+      - series: 'notify_queue_capacity{job="notifier",instance="api-2"}'
+        values: '100 100 100 100'
+      - series: 'notify_retry_after_holds{job="notifier",instance="api-1"}'
+        values: '0 0 0 0'
+      - series: 'notify_retry_after_holds{job="notifier",instance="api-2"}'
+        values: '0 0 0 0'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: NotificationQueueNearCapacity
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: NotificationRetryAfterHold
+        exp_alerts: []
