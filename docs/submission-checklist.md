@@ -19,9 +19,15 @@
 2. 检查将纳入提交的文件，确认没有 `.secrets`、`.env`、真实请求、数据库、日志、私人路径导出或凭证。
 3. 将代码、依赖锁、README、图源/图片、演示脱敏报告和必要文档纳入版本控制。确认图片通过仓库相对路径正常展示。
 4. 创建并核对远端仓库后再推送。GitHub Actions 的远端运行须真实完成，不能把本地等价命令称作远端通过。
-5. 补齐真实的用户/AI 会话导出。现有 `artifacts/ai-session.zip` 只有明确标注的摘要，不满足“完整原始对话已导出”的表述。
+5. 核对 `artifacts/ai-session.zip` 中的真实用户/AI 对话节选与决策摘要。当前明确标注 PARTIAL，来源和消息 ID 见 `docs/ai-conversation-excerpts.md`；不是完整导出。原题未明确要求全部历史，若面试官要求全量记录，仍需补完整脱敏导出。
 
-提供实际导出文件后执行：
+默认打包当前真实节选：
+
+```sh
+python3 scripts/package_ai_log.py
+```
+
+提供额外实际导出文件后执行：
 
 ```sh
 python3 scripts/package_ai_log.py --transcript /absolute/path/to/actual-export.md

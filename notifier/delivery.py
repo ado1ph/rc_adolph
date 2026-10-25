@@ -160,6 +160,7 @@ class HttpTransport:
         connection = None
         response = None
         timer = None
+        timeout_expired = threading.Event()
         request_state = "not_sent"
         failure_phase = "dns"
 
@@ -195,7 +196,12 @@ class HttpTransport:
                 failure_phase = "write"
 
             connection.on_write = mark_outbound
-            timer = threading.Timer(remaining, connection.abort)
+
+            def abort_on_timeout():
+                timeout_expired.set()
+                connection.abort()
+
+            timer = threading.Timer(remaining, abort_on_timeout)
             timer.daemon = True
             timer.start()
             connection.connect()
@@ -320,6 +326,16 @@ class HttpTransport:
                         ambiguous=request_state == "possibly_sent", failure_class="local_policy",
                         request_state=request_state, failure_phase=failure_phase,
                     )
+            if timeout_expired.is_set():
+                return Result(
+                    retryable=request_state == "not_sent",
+                    error="network_timeout" if request_state == "not_sent"
+                    else "ambiguous_network_timeout",
+                    duration_ms=int((time.monotonic() - started) * 1000),
+                    ambiguous=request_state == "possibly_sent",
+                    failure_class="supplier_network",
+                    request_state=request_state, failure_phase=failure_phase,
+                )
             return Result(
                 retryable=request_state == "not_sent",
                 error="network_error" if request_state == "not_sent" else "ambiguous_network_error",

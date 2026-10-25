@@ -217,6 +217,95 @@ class ValidationTests(unittest.TestCase):
             self.assertFalse(result.ambiguous)
             self.assertEqual(result.failure_class, "supplier_network")
 
+    def test_abort_during_response_wait_is_classified_as_timeout(self):
+        import http.client
+        from urllib.parse import urlsplit
+
+        class Policy:
+            def resolve(self, _url, timeout=None):
+                return urlsplit("http://vendor.example/path"), (
+                    "http", "vendor.example", 80,
+                ), "93.184.216.34"
+
+        class FakeTimer:
+            current = None
+
+            def __init__(self, _interval, function):
+                self.function = function
+                FakeTimer.current = self
+
+            def start(self):
+                pass
+
+            def cancel(self):
+                pass
+
+        class AbortedConnection:
+            failure = None
+            abort_action = None
+
+            def __init__(self, *_args, **_kwargs):
+                self.on_write = None
+                self.control = None
+
+            def connect(self):
+                pass
+
+            def request(self, *_args, **_kwargs):
+                self.on_write()
+
+            def getresponse(self):
+                FakeTimer.current.function()
+                raise AbortedConnection.failure
+
+            def abort(self):
+                if AbortedConnection.abort_action is not None:
+                    AbortedConnection.abort_action(self.control)
+
+            def close(self):
+                pass
+
+        request = {
+            "url": "http://vendor.example/path", "method": "POST",
+            "body": "{}", "headers": {},
+        }
+
+        def send(failure, control=None, abort_action=None):
+            AbortedConnection.failure = failure
+            AbortedConnection.abort_action = abort_action
+            with patch("notifier.delivery.threading.Timer", FakeTimer):
+                with patch("notifier.delivery.PinnedConnection", AbortedConnection):
+                    return HttpTransport(Policy(), timeout=30).send(
+                        request, control=control,
+                    )
+
+        for failure in (OSError(9, "Bad file descriptor"), http.client.RemoteDisconnected()):
+            with self.subTest(failure=type(failure).__name__):
+                result = send(failure)
+                self.assertEqual(result.error, "ambiguous_network_timeout")
+                self.assertFalse(result.retryable)
+                self.assertTrue(result.ambiguous)
+                self.assertEqual(result.request_state, "possibly_sent")
+                self.assertEqual(result.failure_phase, "response")
+
+        lease = ExecutionControl()
+        lease_result = send(
+            OSError(9, "Bad file descriptor"), control=lease,
+            abort_action=lambda control: control.mark_lease_lost(),
+        )
+        self.assertEqual(lease_result.error, "lease_lost")
+        self.assertEqual(lease_result.failure_class, "local_policy")
+
+        deadline = ExecutionControl(time.monotonic() + 10)
+        deadline_result = send(
+            OSError(9, "Bad file descriptor"), control=deadline,
+            abort_action=lambda control: setattr(
+                control, "deadline", time.monotonic() - 1,
+            ),
+        )
+        self.assertEqual(deadline_result.error, "execution_budget_exhausted")
+        self.assertEqual(deadline_result.failure_class, "local_policy")
+
     def test_budget_exhaustion_and_lease_loss_are_not_supplier_failures(self):
         from urllib.parse import urlsplit
 

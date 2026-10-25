@@ -1,5 +1,32 @@
 # 本地验证记录
 
+## 2026-10-26 提交前 CI 修复与对话材料
+
+由 `gpt-6-luna` 子 agent 诊断和修复，主 agent 独立检查代码、执行定向回归及演示，并分别开展规范与需求 review。修复前基准为 `21a4c99`，没有新增迁移、放宽重试契约或引入 Redis/MQ。
+
+### 问题与修复证据
+
+实际 GitHub Actions run `40207283353` / job `121210814232` 在 Ubuntu 24.04、Python 3.12.15 上运行 125 项测试，唯一失败是 `test_timeout_after_vendor_commit_is_not_replayed_without_declared_contract`：实际 `ambiguous_network_error`，预期 `ambiguous_network_timeout`。日志未记录底层异常类型和 errno，不能据此断言 CI 的具体系统调用错误。
+
+本地新增受控回归，在响应等待阶段触发传输层 Timer 的 abort，再抛出 `OSError`，修复前复现相同分类差异。原因是 socket 超时与 Timer 主动 shutdown 都能中断等待，但后者可能表现为 `OSError` 或 `HTTPException`，旧代码未保留主动超时这一事实。修复记录 Timer 到期事件，处理这两类异常时优先检查失租及整体执行预算，再将 Timer 中断归类为网络超时。请求已发出的不确定性仍保留，未授予新的自动重试权限。
+
+最终回归使用可控 Timer，不依赖短暂 sleep 或真实定时器争抢；覆盖 `OSError`、`RemoteDisconnected`，以及同时失租、同时预算耗尽时的本地策略优先级。真实 HTTP 原失败用例仍保留，未改断言或跳过测试。
+
+### 已执行验证
+
+| 检查 | 实际结果 |
+| --- | --- |
+| 完整本机回归 | 本轮新建隔离 PostgreSQL 17.11，完整套件 **129 tests，19.010s，OK，0 skipped**；测试后删除并确认不存在本轮容器，没有迁移业务数据库或调用真实供应商。 |
+| Linux 定向验证 | Python 3.12.15-slim 容器中，新增回归及原失败集成用例通过。完整 Linux 链曾因只读挂载下 Ruff 写缓存失败而停止，不能算作完整 Linux 测试通过，仍需远端 Actions 验收。 |
+| 主 agent 定向复跑 | 新超时分类测试、原 CI 失败用例与 3 项对话打包测试，共 5 项通过。 |
+| 真实主路径演示 | `make demo-production PYTHON=.venv/bin/python` 通过；成功、503 恢复、manual 超时核对三场景的调用/副作用为 1/1、3/1、1/1，相同入口 key 均复用回执。只用新临时数据库及本机 Mock。 |
+| 静态检查 | 扩大范围 Ruff（包含 `delivery.py`、本次测试及打包脚本）、`compileall` 和 `pip check` 通过。 |
+| 告警 | 固定 digest 的 Prometheus 镜像，禁网、源码只读挂载：12 条规则检查及规则场景测试均通过。 |
+| 依赖审计 | `python -m pip_audit --disable-pip --no-deps -r requirements.lock` 当次未发现已知漏洞；不包含基础镜像或完整供应链审计。 |
+| 对话材料 | 从当前应用读取真实用户/AI 消息，按消息 ID 选录至 `docs/ai-conversation-excerpts.md`；默认 ZIP 包含该记录，明确标记 PARTIAL，未收入工具输出、私人路径或凭据。新增 3 项测试覆盖默认节选、无节选时仅摘要、外部导出原样保存。 |
+
+本轮本地命令不等于远端 CI 已通过；远端验收应检查本次推送提交对应的 GitHub Actions run。真实对话节选不是完整历史导出，若面试官要求全量仍需另补。面试作业交付与生产上线验收是两回事，真实供应商契约、HA、负载与外部 exactly-once 均未由本轮证明。
+
 ## 2026-10-25 GitHub 发布
 
 用户创建 `ado1ph/rc_adolph` 后，`git ls-remote origin` 确认空仓库可访问，使用本机现有 SSH agent 执行 `git push -u origin main` 成功，首个远端提交为 `c32ddc4`。GitHub REST API 确认 `full_name=ado1ph/rc_adolph`、`private=false`、`default_branch=main`。未重新初始化或覆盖远端，没有 force push；78 个项目文件纳入初始提交，密钥、数据库、虚拟环境、缓存及父目录资料未纳入。暂存区与 ZIP 内容的常见凭据模式及私人路径扫描无匹配，不代表完成全面秘密检测审计。
