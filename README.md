@@ -135,4 +135,4 @@ NOTIFY_TEST_DATABASE_URL='postgresql://<isolated-test-only-dsn>' \
 - [行业方案对比](docs/industry-review-2026-10-24.md)：借鉴成熟设计，但不声称性能或可靠性优于成熟产品。
 - [提交清单](docs/submission-checklist.md)：Git、可复现演示、敏感文件排除、AI 会话材料。
 
-原题要求 GitHub 仓库名为 `rc_{your_nickname}`，项目与仓库名称统一为 `rc_adolph`。远端创建和上传尚待完成。`artifacts/ai-session.zip` 当前明确只有协作摘要，不是完整原始对话；正式提交前需提供真实对话导出并按清单重新打包。这两项不能用本地代码测试替代。
+原题要求 GitHub 仓库名为 `rc_{your_nickname}`，项目与公开仓库名称统一为 `rc_adolph`，已推送至 `ado1ph/rc_adolph` 的 `main` 分支。远端 CI 结果以仓库 Actions 页面为准。`artifacts/ai-session.zip` 当前明确只有协作摘要，不是完整原始对话；正式提交前仍需提供真实对话导出并按清单重新打包，不能用本地代码测试替代。

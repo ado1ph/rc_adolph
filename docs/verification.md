@@ -1,5 +1,11 @@
 # 本地验证记录
 
+## 2026-10-25 GitHub 发布
+
+用户创建 `ado1ph/rc_adolph` 后，`git ls-remote origin` 确认空仓库可访问，使用本机现有 SSH agent 执行 `git push -u origin main` 成功，首个远端提交为 `c32ddc4`。GitHub REST API 确认 `full_name=ado1ph/rc_adolph`、`private=false`、`default_branch=main`。未重新初始化或覆盖远端，没有 force push；78 个项目文件纳入初始提交，密钥、数据库、虚拟环境、缓存及父目录资料未纳入。暂存区与 ZIP 内容的常见凭据模式及私人路径扫描无匹配，不代表完成全面秘密检测审计。
+
+本节更新 README/清单的当前发布状态；下面“未配置远端/未推送”的表述均为此前阶段的历史记录。远端 Actions 不能用本地回归结果代替；完整 AI 原始会话导出仍未补齐。
+
 ## 2026-10-25 项目命名与 Git 发布准备
 
 用户指定项目与公开仓库名统一为 `rc_adolph`。README、项目分发元数据、架构图源与演示图标题已同步，运行包仍为 `notifier`，不改启动命令。两张 PNG 重新渲染并目视检查；架构 SVG 校验、16 个本地链接检查及 3 项演示报告测试通过。本轮未改投递实现，未重新宣称全量数据库回归。
