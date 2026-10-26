@@ -5,74 +5,86 @@
   "style": 1,
   "quality_profile": "showcase",
   "text_policy": "strict",
-  "width": 1280,
-  "height": 680,
+  "width": 1340,
+  "height": 740,
   "title": "rc_adolph",
-  "subtitle": "PostgreSQL task ledger | Independent API and Worker processes",
+  "subtitle": "异步供应商 API 调用服务 · PostgreSQL 即任务队列 · API / Worker 独立进程",
   "nodes": [
     {
       "id": "business", "kind": "rect",
-      "x": 60, "y": 170, "width": 230, "height": 88,
-      "label": "Business systems", "sublabel": "URL + headers + raw body",
+      "x": 60, "y": 180, "width": 250, "height": 108,
+      "label": "业务系统", "sublabel": "URL / Headers / 原始 Body", "title_size": 22,
       "fill": "#f8fafc", "stroke": "#94a3b8", "flat": true
     },
     {
       "id": "api", "kind": "rect",
-      "x": 460, "y": 170, "width": 270, "height": 88,
-      "label": "Notification API", "sublabel": "Auth / idempotency / admission",
+      "x": 465, "y": 180, "width": 300, "height": 108,
+      "label": "通知 API", "sublabel": "鉴权 · 校验 · 幂等 · 容量检查", "title_size": 22,
       "fill": "#eff6ff", "stroke": "#60a5fa", "flat": true
     },
     {
       "id": "ledger", "kind": "rect",
-      "x": 940, "y": 170, "width": 270, "height": 88,
-      "label": "PostgreSQL 17", "sublabel": "Jobs / attempts / audit",
+      "x": 980, "y": 180, "width": 300, "height": 108,
+      "label": "PostgreSQL 17", "sublabel": "任务队列 · 尝试记录 · 审计", "title_size": 22,
       "fill": "#f0fdf4", "stroke": "#4ade80", "flat": true
     },
     {
       "id": "worker", "kind": "rect",
-      "x": 460, "y": 440, "width": 270, "height": 88,
-      "label": "Delivery Worker", "sublabel": "Lease / retry / reconciliation",
+      "x": 465, "y": 470, "width": 300, "height": 108,
+      "label": "投递 Worker", "sublabel": "租约恢复 · 契约重试 · 结果写回", "title_size": 22,
       "fill": "#fff7ed", "stroke": "#fb923c", "flat": true
     },
     {
       "id": "supplier", "kind": "rect",
-      "x": 940, "y": 440, "width": 270, "height": 88,
-      "label": "Supplier HTTP API", "sublabel": "Existing contract, unchanged",
+      "x": 980, "y": 470, "width": 300, "height": 108,
+      "label": "供应商 HTTP(S) API", "sublabel": "既有接口 / 演示使用本机 Mock", "title_size": 22,
       "fill": "#f0fdfa", "stroke": "#2dd4bf", "flat": true
+    },
+    {
+      "id": "operator", "kind": "rect",
+      "x": 60, "y": 470, "width": 250, "height": 108,
+      "label": "运维与核对人员", "sublabel": "通过授权 API 查询与处置", "title_size": 22,
+      "fill": "#fdf2f8", "stroke": "#f472b6", "flat": true
     }
   ],
   "arrows": [
     {
       "id": "submit", "source": "business", "target": "api",
       "source_port": "right", "target_port": "left",
-      "flow": "control", "label": "POST request", "label_style": "offset"
+      "flow": "control", "label": "提交请求", "label_style": "offset"
     },
     {
       "id": "commit", "source": "api", "target": "ledger",
       "source_port": "right", "target_port": "left",
-      "flow": "write", "label": "Commit before 202", "label_style": "offset"
+      "flow": "write", "label": "提交事务后返回 202", "label_style": "offset"
     },
     {
       "id": "lease", "source": "worker", "target": "ledger",
       "source_port": "top", "target_port": "bottom",
-      "flow": "write", "label": "Claim / renew / finish",
-      "label_style": "offset", "route_points": [[595, 350], [1075, 350]]
+      "flow": "write", "label": "领取 / 续租 / 写回",
+      "label_style": "offset", "route_points": [[615, 405], [1130, 405]]
     },
     {
       "id": "deliver", "source": "worker", "target": "supplier",
       "source_port": "right", "target_port": "left",
-      "flow": "control", "label": "Existing HTTP API", "label_style": "offset"
+      "flow": "control", "label": "HTTP(S) 投递", "label_style": "offset"
+    },
+    {
+      "id": "operate", "source": "operator", "target": "api",
+      "source_port": "top", "target_port": "bottom",
+      "flow": "control", "label": "查询 / 核对 / 重放",
+      "label_style": "offset", "route_points": [[185, 350], [615, 350]]
     }
   ],
   "legend_orientation": "horizontal",
   "legend_x": 60,
-  "legend_y": 580,
+  "legend_y": 635,
   "legend_locked": true,
   "legend": [
-    {"flow": "control", "label": "HTTP boundary"},
-    {"flow": "write", "label": "Database transaction"}
+    {"flow": "control", "label": "HTTP 调用"},
+    {"flow": "write", "label": "数据库事务"}
   ],
-  "footer": "No database transaction is held during supplier HTTP. External effects are not exactly-once.",
+  "footer": "当前逻辑架构：出站 HTTP 不占用数据库事务；无需 Redis 或 MQ。",
   "footer_x": 60,
-  "footer_y": 640
+  "footer_y": 700
 }

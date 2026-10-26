@@ -23,11 +23,11 @@ make demo-production PYTHON=.venv/bin/python
 
 无 Docker 时，可运行 `make demo` 体验 [SQLite 演示](docs/sqlite-demo.md)。
 
-## 项目结构
+## 系统架构
 
 API 接收请求，Worker 执行投递，PostgreSQL 保存任务与执行记录，同时承担任务队列。API 与 Worker 分进程运行，不依赖 Redis 或 MQ。
 
-![rc_adolph 架构](docs/assets/architecture.png)
+[![rc_adolph 系统架构：业务系统、API、PostgreSQL 任务队列、Worker 与供应商接口](docs/assets/architecture.png)](docs/assets/architecture.svg)
 
 ## 文档
 

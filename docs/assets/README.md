@@ -5,6 +5,15 @@
 - `demo-report.json`：本机真实 PostgreSQL、独立 API/Worker 与 Mock 的脱敏执行报告。
 - `demo-results.svg`、`demo-results.png`：根据该报告生成的执行结果可视化，不是应用管理后台截图。
 
+架构图使用 `fireworks-tech-graph` skill 生成。将 `SKILL_ROOT` 指向本机 skill 目录后，在仓库根目录执行：
+
+```sh
+python3 "$SKILL_ROOT/scripts/fireworks.py" validate architecture docs/assets/architecture.json
+python3 "$SKILL_ROOT/scripts/fireworks.py" render architecture docs/assets/architecture.json docs/assets/architecture.svg
+python3 "$SKILL_ROOT/scripts/fireworks.py" check docs/assets/architecture.svg
+python3 "$SKILL_ROOT/scripts/fireworks.py" export-png docs/assets/architecture.svg docs/assets/architecture.png --width 1920
+```
+
 重新运行并生成 SVG，不需要绘图 Python 依赖：
 
 ```sh
