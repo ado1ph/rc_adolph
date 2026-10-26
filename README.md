@@ -34,4 +34,4 @@ API 接收请求，Worker 执行投递，PostgreSQL 保存任务与执行记录�
 - [架构与设计](docs/architecture.md)
 - [配置、接口与部署](docs/production-runbook.md)
 - [测试与验证](docs/verification.md)
-- [AI 协作记录](docs/ai-collaboration.md)
+- [AI 协作记录](https://chatgpt.com/s/cx_6adeaee54fb48191b68ab28a5f32c1fe)
