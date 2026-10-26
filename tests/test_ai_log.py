@@ -12,6 +12,9 @@ class ConversationArchiveTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.root = Path(self.directory.name)
         (self.root / "docs" / "adr").mkdir(parents=True)
+        (self.root / "docs" / "simulated-design-review.md").write_text(
+            "# 模拟设计复盘\n\n不是历史会话。\n"
+        )
         for name in (
             "ai-collaboration.md", "references.md", "verification.md",
             "architecture.md", "production-runbook.md",
@@ -39,10 +42,28 @@ class ConversationArchiveTests(unittest.TestCase):
             )
             self.assertIn("PARTIAL CONVERSATION", archive.read("STATUS.txt").decode())
             self.assertIn("NOT a complete", archive.read("STATUS.txt").decode())
+            self.assertIn(
+                "NOT historical dialogue", archive.read("STATUS.txt").decode()
+            )
+            self.assertEqual(
+                archive.read("examples/simulated-design-review.md"),
+                (self.root / "docs" / "simulated-design-review.md").read_bytes(),
+            )
+            self.assertIn(
+                "不是历史会话",
+                archive.read("examples/simulated-design-review.md").decode(),
+            )
+            self.assertNotIn(
+                "transcript/simulated-design-review.md", archive.namelist()
+            )
 
     def test_missing_excerpt_remains_summary_only(self):
         with self.package() as archive:
-            self.assertIn("SUMMARY ONLY", archive.read("STATUS.txt").decode())
+            self.assertIn(
+                "SUMMARY AND SIMULATED DESIGN EXERCISE ONLY",
+                archive.read("STATUS.txt").decode(),
+            )
+            self.assertIn("NOT historical dialogue", archive.read("STATUS.txt").decode())
             self.assertFalse(any(name.startswith("transcript/") for name in archive.namelist()))
 
     def test_explicit_export_is_preserved_without_claiming_completeness(self):
@@ -51,6 +72,8 @@ class ConversationArchiveTests(unittest.TestCase):
         with self.package("--transcript", str(export)) as archive:
             self.assertEqual(archive.read("transcript/actual-export.md"), export.read_bytes())
             self.assertIn("completeness and redaction must be checked",
+                          archive.read("STATUS.txt").decode())
+            self.assertIn("not historical dialogue",
                           archive.read("STATUS.txt").decode())
 
 

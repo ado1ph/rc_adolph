@@ -18,7 +18,9 @@ def main():
     if transcript:
         status = (
             "An externally supplied conversation export is included. "
-            "Its completeness and redaction must be checked by the submitter.\n"
+            "Its completeness and redaction must be checked by the submitter. "
+            "The separate design-review exercise under examples/ is simulated, "
+            "not historical dialogue.\n"
         )
     else:
         transcript = root / "docs" / "ai-conversation-excerpts.md"
@@ -27,13 +29,16 @@ def main():
                 "PARTIAL CONVERSATION EXCERPTS AND DECISION SUMMARIES. "
                 "Real selected user/assistant messages are included; see their "
                 "source and scope in the transcript file. This is NOT a complete "
-                "conversation export. Tool outputs and private data are excluded.\n"
+                "conversation export. A separate simulated design-review exercise "
+                "is included under examples/ and is NOT historical dialogue. "
+                "Tool outputs and private data are excluded.\n"
             )
         else:
             transcript = None
             status = (
-                "SUMMARY ONLY. No full raw conversation export is included. "
-                "Do not describe this archive as a complete AI session transcript.\n"
+                "SUMMARY AND SIMULATED DESIGN EXERCISE ONLY. No real conversation "
+                "messages or full conversation export are included. The exercise "
+                "under examples/ is NOT historical dialogue.\n"
             )
     with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("STATUS.txt", status)
@@ -43,6 +48,10 @@ def main():
         for path in sorted((root / "docs" / "adr").glob("*.md")):
             archive.write(path, path.relative_to(root))
         archive.write(root / "GLOSSARY.md", "GLOSSARY.md")
+        archive.write(
+            root / "docs" / "simulated-design-review.md",
+            "examples/simulated-design-review.md",
+        )
         if transcript:
             archive.write(transcript, "transcript/" + transcript.name)
     print(destination)
